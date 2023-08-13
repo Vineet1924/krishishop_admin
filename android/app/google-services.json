@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "206526653884",
+    "project_id": "krishishop-c1de8",
+    "storage_bucket": "krishishop-c1de8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206526653884:android:385ee322715a483e6877b9",
+        "android_client_info": {
+          "package_name": "com.example.krishishop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206526653884-1h2l516203vpi6ggf185ltsi5pl0lkcc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.krishishop",
+            "certificate_hash": "7311744f27735f664b4323f3bda6b1a198b6b935"
+          }
+        },
+        {
+          "client_id": "206526653884-h2q70v7kn4g34b58n3514dcoc0glj0h6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.krishishop",
+            "certificate_hash": "019b36ba0c49e3264aaa8dc75ed167c8c9def6a3"
+          }
+        },
+        {
+          "client_id": "206526653884-q4l32qtkm3tr6fqpds1nhhbmti1n6qpf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv9Fqr5LSIhzEQ98X9A1RjvN7XnblL7m4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206526653884-q4l32qtkm3tr6fqpds1nhhbmti1n6qpf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "206526653884-5u1b27alcc1g5npa7fruehni0u1o671e.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.krishishop.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206526653884:android:8212609cf37184906877b9",
+        "android_client_info": {
+          "package_name": "com.example.krishishop_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206526653884-q4l32qtkm3tr6fqpds1nhhbmti1n6qpf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv9Fqr5LSIhzEQ98X9A1RjvN7XnblL7m4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206526653884-q4l32qtkm3tr6fqpds1nhhbmti1n6qpf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "206526653884-5u1b27alcc1g5npa7fruehni0u1o671e.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.krishishop.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
