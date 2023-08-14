@@ -22,12 +22,13 @@ class MyTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
+        style: TextStyle(color: Colors.grey.shade700),
         controller: controller,
         decoration: InputDecoration(
-          disabledBorder:
-              const OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-          enabledBorder:
-              const OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+          disabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white)),
+          enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white)),
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey.shade400)),
           fillColor: Colors.grey.shade200,

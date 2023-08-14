@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:krishishop_admin/firebase_services/firebase_auth_methods.dart';
+import 'package:krishishop_admin/product_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -26,14 +27,57 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Center(
-            child: ElevatedButton(
-                onPressed: signOut, child: const Text("Signout")),
-          )
-        ],
+    return DefaultTabController(
+      length: 3,
+      initialIndex: 0,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.blue,
+          title: const Text(
+            "Krishishop",
+            style: TextStyle(color: Colors.white),
+          ),
+          bottom: const TabBar(
+              indicatorWeight: 2,
+              labelColor: Colors.white,
+              unselectedLabelColor: Color.fromARGB(255, 110, 190, 255),
+              tabs: [
+                Tab(
+                  text: "Products",
+                ),
+                Tab(
+                  text: "Users",
+                ),
+                Tab(
+                  text: "Transactions",
+                ),
+              ]),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 15),
+              child: GestureDetector(
+                onTap: signOut,
+                child: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: const TabBarView(
+          children: [
+            Center(
+              child: product_screen(),
+            ),
+            Center(
+              child: Text("TAB-2"),
+            ),
+            Center(
+              child: Text("TAB-3"),
+            ),
+          ],
+        ),
       ),
     );
   }
