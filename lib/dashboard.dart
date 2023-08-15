@@ -46,7 +46,7 @@ class _DashboardState extends State<Dashboard> {
                   text: "Products",
                 ),
                 Tab(
-                  text: "Users",
+                  text: "Orders",
                 ),
                 Tab(
                   text: "Transactions",

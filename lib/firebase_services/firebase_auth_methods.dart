@@ -24,9 +24,9 @@ class FirebaseAuthMethods {
           .then((value) async {
         userModel? loadUser = await userModel
             .loadFromFirestore(FirebaseAuth.instance.currentUser!.uid);
-        String? usertype = loadUser?.usertype;
-        if (usertype == "user") {
-          showErrorSnackBar(context, "You can't login with user account");
+
+        if (loadUser?.uid == "") {
+          showErrorSnackBar(context, "Email or password may be incorrect!");
 
           try {
             auth.signOut().then((value) async {

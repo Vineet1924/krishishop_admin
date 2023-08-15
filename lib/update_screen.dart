@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types, use_build_context_synchronously, constant_identifier_names
+// ignore_for_file: camel_case_types, use_build_context_synchronously, constant_identifier_names, non_constant_identifier_names
 
 import 'dart:io';
 import 'dart:math';
@@ -11,18 +11,20 @@ import 'package:krishishop_admin/components/icon_tile.dart';
 import 'package:krishishop_admin/components/my_button.dart';
 import 'package:krishishop_admin/components/my_snackbar.dart';
 import 'package:krishishop_admin/components/my_textfield.dart';
+import 'package:krishishop_admin/dashboard.dart';
 import 'package:krishishop_admin/models/Products.dart';
 
 enum productType { Farming, Crops }
 
-class add_product_screen extends StatefulWidget {
-  const add_product_screen({super.key});
+class updateScreen extends StatefulWidget {
+  final Products product;
+  const updateScreen({super.key, required this.product});
 
   @override
-  State<add_product_screen> createState() => _add_product_screenState();
+  State<updateScreen> createState() => _updateScreenState();
 }
 
-class _add_product_screenState extends State<add_product_screen> {
+class _updateScreenState extends State<updateScreen> {
   final nameController = TextEditingController();
   final quantityController = TextEditingController();
   final descController = TextEditingController();
@@ -30,18 +32,70 @@ class _add_product_screenState extends State<add_product_screen> {
 
   final ImagePicker imagePicker = ImagePicker();
   List<XFile> images = [];
-  List<String> imageUrls = [];
+  List<dynamic> ImageUrls = [];
   String name = "";
   String desc = "";
   String quantity = "";
   String price = "";
+  String pid = "";
   productType? type;
   late String _type = "";
+
+  @override
+  void initState() {
+    super.initState();
+
+    pid = widget.product.pid;
+    nameController.text = widget.product.name;
+    descController.text = widget.product.description;
+    quantityController.text = widget.product.quantity;
+    priceController.text = widget.product.price;
+    if (widget.product.type == "productType.Farming") {
+      type = productType.Farming;
+      _type = type.toString();
+    } else {
+      type = productType.Crops;
+      _type.toString();
+    }
+    ImageUrls.addAll(widget.product.images);
+  }
 
   String _generateUniqueImageName() {
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     String randomString = Random().nextInt(10000).toString();
     return '$timestamp-$randomString';
+  }
+
+  Future<bool> removeFromStorage(List<dynamic> imageUrls) async {
+    if (imageUrls.isNotEmpty) {
+      EasyLoading.show(status: "Removing");
+      for (var imageUrl in imageUrls) {
+        Reference storageReference =
+            FirebaseStorage.instance.refFromURL(imageUrl);
+
+        try {
+          await storageReference.delete();
+        } catch (error) {
+          showErrorSnackBar(context, error.toString());
+        }
+      }
+
+      try {
+        await FirebaseFirestore.instance
+            .collection("Products")
+            .doc(pid)
+            .update({"images": FieldValue.delete()});
+      } catch (error) {
+        showErrorSnackBar(context, error.toString());
+      }
+
+      setState(() {
+        ImageUrls = [];
+        EasyLoading.dismiss();
+      });
+      return true;
+    }
+    return false;
   }
 
   Future<bool> uploadToStorage(List<XFile> images) async {
@@ -50,7 +104,7 @@ class _add_product_screenState extends State<add_product_screen> {
       showErrorSnackBar(context, "Please select images");
       return false;
     }
-    EasyLoading.show(status: "Uploading");
+    EasyLoading.show(status: "Updating");
     final root = FirebaseStorage.instance.ref();
     final products = root.child("products");
     for (var image in images) {
@@ -66,7 +120,7 @@ class _add_product_screenState extends State<add_product_screen> {
     }
 
     setState(() {
-      imageUrls.addAll(uploadUrls);
+      ImageUrls.addAll(uploadUrls);
     });
     return true;
   }
@@ -106,30 +160,27 @@ class _add_product_screenState extends State<add_product_screen> {
 
       if (isUploaded) {
         Products products = Products(
-            pid: "",
+            pid: pid,
             description: desc,
             name: name,
             quantity: quantity,
-            images: imageUrls,
+            images: ImageUrls,
             price: price,
             type: _type);
 
-        var docRef = await FirebaseFirestore.instance
+        await FirebaseFirestore.instance
             .collection("Products")
-            .add(products.toJson());
+            .doc(pid)
+            .update(products.toJson());
 
-        String newId = docRef.id;
-        products.copyPid(newId.toString());
-        await docRef.update({'pid': newId.toString()});
-
-        EasyLoading.showSuccess("uploaded");
+        EasyLoading.showSuccess("updated");
         return true;
       }
       return false;
     }
 
     setState(() {
-      imageUrls = [];
+      ImageUrls = [];
     });
     return false;
   }
@@ -332,12 +383,16 @@ class _add_product_screenState extends State<add_product_screen> {
                   ),
                   MyButton(
                       onTap: () async {
-                        if (await uploadToCollection()) {
-                          Navigator.pop(context, true);
-                          EasyLoading.dismiss();
+                        if (await removeFromStorage(ImageUrls)) {
+                          if (await uploadToCollection()) {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Dashboard()));
+                          }
                         }
                       },
-                      title: "Upload"),
+                      title: "Update"),
                   const SizedBox(height: 20),
                 ]),
               ),

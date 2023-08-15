@@ -9,9 +9,8 @@ class userModel {
   String? profilepic;
   String? uid;
   String? username;
-  String usertype = "user";
   final CollectionReference usersCollection =
-      FirebaseFirestore.instance.collection("Users");
+      FirebaseFirestore.instance.collection("Admin");
 
   userModel(
       {required this.address,
@@ -19,8 +18,7 @@ class userModel {
       required this.phone,
       required this.profilepic,
       required this.uid,
-      required this.username,
-      required this.usertype});
+      required this.username,});
 
   Map<String, dynamic> addressMap() {
     return {"address": address};
@@ -44,10 +42,6 @@ class userModel {
 
   Map<String, dynamic> uidMap() {
     return {"uid": uid};
-  }
-
-  Map<String, dynamic> usertypeMap() {
-    return {"usertype": usertype};
   }
 
   Future<void> storeAddress() async {
@@ -102,16 +96,6 @@ class userModel {
     }
   }
 
-  Future<void> storeUsertype() async {
-    try {
-      await usersCollection
-          .doc(uid)
-          .set(usertypeMap(), SetOptions(merge: true));
-    } catch (e) {
-      print("Error while storing data: $e");
-    }
-  }
-
   factory userModel.fromMap(Map<String, dynamic> map) {
     return userModel(
         uid: map['uid'],
@@ -120,13 +104,13 @@ class userModel {
         phone: map['phone'],
         profilepic: map['profilepic'],
         username: map['username'],
-        usertype: map['usertype']);
+        );
   }
 
   static Future<userModel?> loadFromFirestore(String uid) async {
     try {
       final DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection("Users").doc(uid).get();
+          await FirebaseFirestore.instance.collection("Admin").doc(uid).get();
 
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
