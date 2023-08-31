@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:krishishop_admin/add_product_screen.dart';
 import 'package:krishishop_admin/components/my_card.dart';
 import 'package:krishishop_admin/product_details.dart';
@@ -15,94 +16,89 @@ class product_screen extends StatefulWidget {
 }
 
 class _product_screenState extends State<product_screen> {
-  List<Products> products = [];
+  late Stream<QuerySnapshot<Map<String, dynamic>>> productStream;
 
   @override
   void initState() {
     super.initState();
-    fetchProducts();
-  }
-
-  Future<void> fetchProducts() async {
-    var documents =
-        await FirebaseFirestore.instance.collection("Products").get();
-    mapProducts(documents);
-  }
-
-  mapProducts(QuerySnapshot<Map<String, dynamic>> documents) {
-    var productsList = documents.docs
-        .map(
-          (products) => Products(
-              pid: products.id,
-              description: products['description'],
-              name: products['name'],
-              quantity: products['quantity'],
-              images: products['images'],
-              price: products['price'],
-              type: products['type']),
-        )
-        .toList();
-
-    setState(() {
-      products = productsList;
-    });
+    productStream =
+        FirebaseFirestore.instance.collection("Products").snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12),
-            controller: ScrollController(keepScrollOffset: false),
-            shrinkWrap: true,
-            scrollDirection: Axis.vertical,
-            itemCount: products.length,
-            itemBuilder: (context, Index) {
-              final product = products[Index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      (MaterialPageRoute(
-                          builder: (context) =>
-                              productDetails(product: product))));
-                },
-                child: Material(
-                  elevation: 4,
-                  child: Container(
-                    height: 350,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: myCard(
-                      product: product,
-                      index: Index,
-                      name: products[Index].name,
-                      description: products[Index].description,
-                      quantity: products[Index].quantity,
-                      price: products[Index].price,
-                      image: products[Index].images[0],
-                    ),
-                  ),
-                ),
-              );
-            }),
-      ),
+          padding: const EdgeInsets.all(12.0),
+          child: StreamBuilder(
+              stream: productStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text("inside waiting state");
+                } else if (snapshot.hasError) {
+                  return Text("Error ${snapshot.error}");
+                } else {
+                  final documents = snapshot.data?.docs;
+
+                  List<Products> products = documents!
+                      .map((products) => Products(
+                          description: products['description'],
+                          name: products['name'],
+                          quantity: products['quantity'],
+                          images: products['images'],
+                          price: products['price'],
+                          pid: products.id,
+                          type: products['type']))
+                      .toList();
+
+                  return GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12),
+                      controller: ScrollController(keepScrollOffset: false),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      itemCount: products.length,
+                      itemBuilder: (context, Index) {
+                        final product = products[Index];
+                        EasyLoading.dismiss();
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                (MaterialPageRoute(
+                                    builder: (context) =>
+                                        productDetails(product: product))));
+                          },
+                          child: Container(
+                            height: 350,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(55),
+                            ),
+                            child: myCard(
+                              index: Index,
+                              name: products[Index].name,
+                              description: products[Index].description,
+                              quantity: products[Index].quantity,
+                              price: products[Index].price,
+                              image: products[Index].images[0],
+                              product: products[Index],
+                            ),
+                          ),
+                        );
+                      });
+                }
+              })),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16),
         child: FloatingActionButton(
-          onPressed: () async {
-            final shouldReferesh = await Navigator.push(
+          onPressed: () {
+            Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => const add_product_screen()));
-
-            if (shouldReferesh == true) {
-              await fetchProducts();
-            }
           },
           child: const Icon(
             Icons.add,

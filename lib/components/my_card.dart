@@ -47,68 +47,70 @@ class _myCardState extends State<myCard> {
           color: Colors.white,
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 110,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.network(
-                    widget.image,
-                    fit: BoxFit.fill,
+      body: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(25),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            color: Colors.white,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 110,
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.network(
+                        widget.image,
+                        fit: BoxFit.fill,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Text(
+                  widget.name,
+                  style: TextStyle(color: Colors.grey.shade800, fontSize: 16),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Text(
+                  "₹ ${widget.price}",
+                  style: TextStyle(
+                      color: Colors.orange.shade800,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: widget.quantity == "0"
+                    ? const Text(
+                        "Out of Stock",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                        ),
+                      )
+                    : Text(
+                        widget.quantity,
+                        style: const TextStyle(
+                          color: Colors.green,
+                        ),
+                      ),
+              ),
+            ],
           ),
-          const SizedBox(height: 2),
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Text(
-              widget.name,
-              style: TextStyle(color: Colors.grey.shade800, fontSize: 16),
-            ),
-          ),
-          const SizedBox(height: 1),
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Text(
-              "₹ ${widget.price}",
-              style: TextStyle(
-                  color: Colors.orange.shade800,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(height: 1),
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: widget.quantity == "0"
-                ? const Text(
-                    "Out of Stock",
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                    ),
-                  )
-                : Text(
-                    widget.quantity,
-                    style: const TextStyle(
-                      color: Colors.green,
-                    ),
-                  ),
-          ),
-        ],
+        ),
       ),
     );
   }

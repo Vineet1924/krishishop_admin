@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:krishishop_admin/firebase_services/firebase_auth_methods.dart';
 import 'package:krishishop_admin/product_screen.dart';
+import 'package:krishishop_admin/user_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -28,7 +29,7 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
@@ -46,10 +47,13 @@ class _DashboardState extends State<Dashboard> {
                   text: "Products",
                 ),
                 Tab(
-                  text: "Orders",
+                  text: "Users",
                 ),
                 Tab(
-                  text: "Transactions",
+                  text: "Admins",
+                ),
+                Tab(
+                  text: "Profile",
                 ),
               ]),
           actions: [
@@ -71,11 +75,12 @@ class _DashboardState extends State<Dashboard> {
               child: product_screen(),
             ),
             Center(
-              child: Text("TAB-2"),
+              child: user_list(),
             ),
             Center(
               child: Text("TAB-3"),
             ),
+            Center(child: Text("TAB-4")),
           ],
         ),
       ),
