@@ -48,7 +48,7 @@ class _myCardState extends State<myCard> {
         ),
       ),
       body: Material(
-        elevation: 4,
+        elevation: 3,
         borderRadius: BorderRadius.circular(25),
         child: Container(
           decoration: BoxDecoration(

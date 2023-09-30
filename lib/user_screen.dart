@@ -30,19 +30,19 @@ class _user_listState extends State<user_list> {
           stream: userStream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Inside waiting state");
+              return const Text("");
             } else if (snapshot.hasError) {
-              return const Text("Error while fetching the data");
+              return const Text("");
             } else {
               final documents = snapshot.data?.docs;
               List<userModel>? users = documents!
                   .map((user) => userModel(
-                      address: user['address'],
-                      email: user['email'],
-                      phone: user['phone'],
-                      profilepic: user['profilepic'],
-                      uid: user['uid'],
-                      username: user['username']))
+                      address: user['address'] ?? '',
+                      email: user['email'] ?? '',
+                      phone: user['phone'] ?? '',
+                      profilepic: user['profilepic'] ?? '',
+                      uid: user['uid'] ?? '',
+                      username: user['username'] ?? ''))
                   .toList();
 
               return ListView.builder(
@@ -53,17 +53,25 @@ class _user_listState extends State<user_list> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     leading: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(150),
-                        ),
-                        child: ClipOval(
-                          child: Image.network(
-                            users[index].profilepic.toString(),
-                            fit: BoxFit.cover,
-                          ),
-                        )),
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(150),
+                      ),
+                      child: users[index].profilepic == ''
+                          ? ClipOval(
+                              child: Image.asset(
+                                "assets/images/user.png",
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : ClipOval(
+                              child: Image.network(
+                                users[index].profilepic.toString(),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                    ),
                     title: Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Text(
@@ -84,9 +92,12 @@ class _user_listState extends State<user_list> {
                             fontWeight: FontWeight.w400),
                       ),
                     ),
-                    trailing: Icon(
-                      Icons.shopping_cart,
-                      color: Colors.grey.shade600,
+                    trailing: GestureDetector(
+                      onTap: () {},
+                      child: Icon(
+                        Icons.location_history,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   );
                 },

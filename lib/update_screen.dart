@@ -1,6 +1,7 @@
-// ignore_for_file: camel_case_types, use_build_context_synchronously, constant_identifier_names, non_constant_identifier_names
+// ignore_for_file: camel_case_types, use_build_context_synchronously, constant_identifier_names, non_constant_identifier_names, depend_on_referenced_packages, await_only_futures, avoid_print
 
 import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,8 +12,8 @@ import 'package:krishishop_admin/components/icon_tile.dart';
 import 'package:krishishop_admin/components/my_button.dart';
 import 'package:krishishop_admin/components/my_snackbar.dart';
 import 'package:krishishop_admin/components/my_textfield.dart';
-import 'package:krishishop_admin/dashboard.dart';
 import 'package:krishishop_admin/models/Products.dart';
+import 'package:path_provider/path_provider.dart';
 
 enum productType { Farming, Crops }
 
@@ -40,10 +41,12 @@ class _updateScreenState extends State<updateScreen> {
   String pid = "";
   productType? type;
   late String _type = "";
+  late String _localPath;
 
   @override
   void initState() {
     super.initState();
+    _initLocalPath();
 
     pid = widget.product.pid;
     nameController.text = widget.product.name;
@@ -58,6 +61,15 @@ class _updateScreenState extends State<updateScreen> {
       _type.toString();
     }
     ImageUrls.addAll(widget.product.images);
+
+    selectedImages();
+  }
+
+  Future<void> _initLocalPath() async {
+    final directory = await getApplicationDocumentsDirectory();
+    setState(() {
+      _localPath = directory.path;
+    });
   }
 
   String _generateUniqueImageName() {
@@ -70,23 +82,13 @@ class _updateScreenState extends State<updateScreen> {
     if (imageUrls.isNotEmpty) {
       EasyLoading.show(status: "Removing");
       for (var imageUrl in imageUrls) {
-        Reference storageReference =
-            FirebaseStorage.instance.refFromURL(imageUrl);
-
         try {
+          Reference storageReference =
+              FirebaseStorage.instance.refFromURL(imageUrl);
           await storageReference.delete();
         } catch (error) {
           showErrorSnackBar(context, error.toString());
         }
-      }
-
-      try {
-        await FirebaseFirestore.instance
-            .collection("Products")
-            .doc(pid)
-            .update({"images": FieldValue.delete()});
-      } catch (error) {
-        showErrorSnackBar(context, error.toString());
       }
 
       setState(() {
@@ -96,6 +98,31 @@ class _updateScreenState extends State<updateScreen> {
       return true;
     }
     return false;
+  }
+
+  Future<void> selectedImages() async {
+    EasyLoading.show(status: "Fetching data");
+    List<XFile> downloadedImages = [];
+    for (var imageUrl in ImageUrls) {
+      try {
+        var response = await http.get(Uri.parse(imageUrl));
+        if (response.statusCode == 200) {
+          var fileName = imageUrl.split('/').last;
+          var filePath = '$_localPath/$fileName';
+
+          var file = File(filePath);
+          await file.writeAsBytes(response.bodyBytes);
+          downloadedImages.add(XFile(filePath));
+        }
+      } catch (e) {
+        print('Error downloading image: $e');
+      }
+    }
+
+    setState(() {
+      images.addAll(downloadedImages);
+    });
+    EasyLoading.dismiss();
   }
 
   Future<bool> uploadToStorage(List<XFile> images) async {
@@ -148,11 +175,11 @@ class _updateScreenState extends State<updateScreen> {
   }
 
   Future<bool> uploadToCollection() async {
+    EasyLoading.show(status: "Uploading");
     name = nameController.text;
     desc = descController.text;
     price = priceController.text;
     quantity = quantityController.text;
-
     bool isValid = await validateData(name, desc, price, quantity, _type);
 
     if (isValid) {
@@ -182,10 +209,11 @@ class _updateScreenState extends State<updateScreen> {
     setState(() {
       ImageUrls = [];
     });
+    EasyLoading.dismiss();
     return false;
   }
 
-  Future<void> selectedImages() async {
+  Future<void> selectedImagesM() async {
     List<XFile> selectedImages = await imagePicker.pickMultiImage();
     if (selectedImages.isEmpty) {
       showErrorSnackBar(context, "No image selected");
@@ -199,8 +227,10 @@ class _updateScreenState extends State<updateScreen> {
   }
 
   void removeImage(var index) {
+    List<XFile> updatedImages = List.from(images);
+    updatedImages.removeAt(index);
     setState(() {
-      images.removeAt(index);
+      images = updatedImages;
     });
   }
 
@@ -374,7 +404,7 @@ class _updateScreenState extends State<updateScreen> {
                   const SizedBox(height: 20),
                   GestureDetector(
                       onTap: () async {
-                        await selectedImages();
+                        await selectedImagesM();
                       },
                       child: const iconTile(
                           icon: Icon(Icons.file_upload_outlined))),
@@ -384,12 +414,8 @@ class _updateScreenState extends State<updateScreen> {
                   MyButton(
                       onTap: () async {
                         if (await removeFromStorage(ImageUrls)) {
-                          if (await uploadToCollection()) {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Dashboard()));
-                          }
+                          await uploadToCollection();
+                          Navigator.of(context).pop();
                         }
                       },
                       title: "Update"),

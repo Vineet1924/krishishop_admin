@@ -1,10 +1,9 @@
-// ignore_for_file: must_be_immutable, camel_case_types, use_build_context_synchronously
+// ignore_for_file: must_be_immutable, camel_case_types, use_build_context_synchronously, avoid_print, unnecessary_null_comparison
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:krishishop_admin/dashboard.dart';
 import 'package:krishishop_admin/update_screen.dart';
 import 'components/my_snackbar.dart';
 import 'models/Products.dart';
@@ -59,9 +58,44 @@ class _productDetailsState extends State<productDetails> {
     return false;
   }
 
-  Future<void> removeDocument() async {
-    await removeFromStorage(images);
-    await FirebaseFirestore.instance.collection("Products").doc(pid).delete();
+  Future<void> removeDocument(String productId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Products')
+          .doc(productId)
+          .delete();
+      removeFromStorage(images);
+      QuerySnapshot usersQuery =
+          await FirebaseFirestore.instance.collection('Users').get();
+      for (QueryDocumentSnapshot userDoc in usersQuery.docs) {
+        if (userDoc.reference.collection('Cart') != null) {
+          QuerySnapshot cartQuery = await userDoc.reference
+              .collection('Cart')
+              .where('pid', isEqualTo: productId)
+              .get();
+
+          for (QueryDocumentSnapshot cartDoc in cartQuery.docs) {
+            await cartDoc.reference.delete();
+          }
+        }
+
+        if (userDoc.reference.collection('Favourite') != null) {
+          QuerySnapshot favouriteQuery = await userDoc.reference
+              .collection('Favourite')
+              .where('pid', isEqualTo: productId)
+              .get();
+
+          for (QueryDocumentSnapshot favDoc in favouriteQuery.docs) {
+            await favDoc.reference.delete();
+          }
+        }
+      }
+
+      print(
+          'Product with pid: $productId removed from users\' Cart and Favourite.');
+    } catch (e) {
+      print('Error: $e');
+    }
     EasyLoading.dismiss();
   }
 
@@ -217,11 +251,8 @@ class _productDetailsState extends State<productDetails> {
                       top: 20, bottom: 20, left: 8, right: 8),
                   child: GestureDetector(
                     onTap: () async {
-                      await removeDocument();
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Dashboard()));
+                      await removeDocument(widget.product.pid);
+                      Navigator.of(context).pop();
                     },
                     child: Container(
                         width: 120,

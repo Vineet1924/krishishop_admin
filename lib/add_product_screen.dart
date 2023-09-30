@@ -180,7 +180,7 @@ class _add_product_screenState extends State<add_product_screen> {
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(6.0),
-                          child: Container(
+                          child: Container (
                             height: 20,
                             width: 200,
                             decoration: BoxDecoration(

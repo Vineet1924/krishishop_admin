@@ -9,6 +9,7 @@ class userModel {
   String? profilepic;
   String? uid;
   String? username;
+
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection("Admin");
 
@@ -122,5 +123,41 @@ class userModel {
       print("Error while loading data: $e");
     }
     return null;
+  }
+
+  static Future<userModel> getUserData(String uid) async {
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection("Admin").doc(uid);
+    DocumentSnapshot userDocSnapshot = await userDocRef.get();
+
+    if (userDocSnapshot.exists) {
+      Map<String, dynamic> userData =
+          userDocSnapshot.data() as Map<String, dynamic>;
+
+      String username = userData['username'] ?? '';
+      String address = userData['address'] ?? '';
+      String email = userData['email'] ?? '';
+      String phone = userData['phone'] ?? '';
+      String profilepic = userData['profilepic'] ?? '';
+      String uid = userData['uid'] ?? '';
+
+      return userModel(
+        username: username,
+        address: address,
+        email: email,
+        phone: phone,
+        profilepic: profilepic,
+        uid: uid,
+      );
+    } else {
+      return userModel(
+        username: '',
+        address: '',
+        email: '',
+        phone: '',
+        profilepic: '',
+        uid: '',
+      );
+    }
   }
 }

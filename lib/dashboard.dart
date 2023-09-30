@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:krishishop_admin/firebase_services/firebase_auth_methods.dart';
+import 'package:krishishop_admin/order_screen.dart';
 import 'package:krishishop_admin/product_screen.dart';
+import 'package:krishishop_admin/profile_screen.dart';
 import 'package:krishishop_admin/user_screen.dart';
 
 class Dashboard extends StatefulWidget {
@@ -50,7 +52,7 @@ class _DashboardState extends State<Dashboard> {
                   text: "Users",
                 ),
                 Tab(
-                  text: "Admins",
+                  text: "Orders",
                 ),
                 Tab(
                   text: "Profile",
@@ -78,9 +80,9 @@ class _DashboardState extends State<Dashboard> {
               child: user_list(),
             ),
             Center(
-              child: Text("TAB-3"),
+              child: orderScreen(),
             ),
-            Center(child: Text("TAB-4")),
+            Center(child: profileScreen()),
           ],
         ),
       ),

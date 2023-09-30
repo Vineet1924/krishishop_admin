@@ -1,48 +1,52 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:krishishop_admin/components/my_button.dart';
-import 'package:krishishop_admin/firebase_services/firebase_auth_methods.dart';
-import 'package:krishishop_admin/signup_screen.dart';
-import 'components/my_snackbar.dart';
-import 'components/my_textfield.dart';
+import 'package:krishishop_admin/components/my_snackbar.dart';
+import 'package:krishishop_admin/components/my_textfield.dart';
+import 'package:krishishop_admin/login_screen.dart';
+import 'firebase_services/firebase_auth_methods.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
+class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPassword = TextEditingController();
+  bool user = false;
   final bool isEditable = true;
-
-  @override
-  void initState() {
-    EasyLoading.dismiss();
-    super.initState();
-  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    confirmPassword.dispose();
     super.dispose();
   }
 
-  Future<void> signInUser() async {
+  Future signUpUser() async {
+    await EasyLoading.show(status: 'Creating your Account!');
     if (emailController.text.trim() == "") {
       showErrorSnackBar(context, 'Email is required!');
     } else if (passwordController.text.trim() == "") {
       showErrorSnackBar(context, 'Password is required!');
+    } else if (confirmPassword.text.trim() == "") {
+      showErrorSnackBar(context, 'Confirm Password is Empty!');
+    } else if (passwordController.text.trim() != confirmPassword.text.trim()) {
+      showErrorSnackBar(context, 'Password not Matched!');
     } else {
-      await FirebaseAuthMethods(FirebaseAuth.instance).signInWithEmail(
+      await FirebaseAuthMethods(FirebaseAuth.instance).signUpWithEmail(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
           context: context);
     }
+    await EasyLoading.dismiss();
   }
 
   @override
@@ -62,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 50),
                 Text(
-                  'Welcome back you\'ve been missed!',
+                  'Let\'s create your Account!',
                   style: TextStyle(color: Colors.grey[600], fontSize: 16),
                 ),
                 const SizedBox(height: 30),
@@ -81,20 +85,28 @@ class _LoginPageState extends State<LoginPage> {
                   inputType: TextInputType.text,
                   isEditable: isEditable,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
+                MyTextField(
+                  controller: confirmPassword,
+                  hintText: "Confirm Password",
+                  obscureText: false,
+                  inputType: TextInputType.text,
+                  isEditable: isEditable,
+                ),
+                const SizedBox(height: 30),
                 MyButton(
-                  onTap: signInUser,
-                  title: 'Sign in',
+                  onTap: signUpUser,
+                  title: 'Sign up',
                 ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Not a Member?',
+                      'Already have and Account?',
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 15,
+                        fontSize: 16,
                       ),
                     ),
                     const SizedBox(
@@ -102,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     GestureDetector(
                       child: const Text(
-                        'Register now',
+                        'Sign in',
                         style: TextStyle(
                           color: Colors.blue,
                           fontSize: 16,
@@ -112,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const SignupPage()));
+                                builder: (context) => const LoginPage()));
                       },
                     ),
                   ],
